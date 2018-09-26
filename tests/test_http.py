@@ -2,7 +2,7 @@ import pytest
 from pytest import param
 
 from apistar import Route, http, test
-from apistar.server.app import App, ASyncApp
+from apistar.server.app import App, ASyncApp, CORSApp
 
 # HTTP Components as parameters
 
@@ -144,12 +144,14 @@ routes = [
 ]
 
 
-@pytest.fixture(scope="module", params=["wsgi", "asgi"])
+@pytest.fixture(scope="module", params=["wsgi", "asgi", "cors"])
 def client(request):
     if request.param == "asgi":
         app = ASyncApp(routes=routes)
-    else:
+    elif request.param == "wsgi":
         app = App(routes=routes)
+    else:
+        app = CORSApp(routes=routes)
     return test.TestClient(app)
 
 

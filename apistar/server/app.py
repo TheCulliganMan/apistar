@@ -9,6 +9,7 @@ from apistar.server.adapters import ASGItoWSGIAdapter
 from apistar.server.asgi import ASGI_COMPONENTS, ASGIReceive, ASGIScope, ASGISend
 from apistar.server.components import Component, ReturnValue
 from apistar.server.core import Route, generate_document
+from apistar.server.cors import CORSMixin
 from apistar.server.injector import ASyncInjector, Injector
 from apistar.server.router import Router
 from apistar.server.staticfiles import ASyncStaticFiles, StaticFiles
@@ -403,3 +404,7 @@ class ASyncApp(App):
             options["use_reloader"] = debug
         wsgi = ASGItoWSGIAdapter(self, raise_exceptions=debug)
         werkzeug.run_simple(host, port, wsgi, **options)
+
+
+class CORSApp(CORSMixin, App):
+    pass
