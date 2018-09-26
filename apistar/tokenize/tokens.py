@@ -1,7 +1,7 @@
 from typing import List, Union
 
 
-class Token():
+class Token(object):
     def __init__(self, value, start: int, end: int):
         self.value = value
         self.start = start
