@@ -5,20 +5,20 @@ from apistar import App, Route, http, test
 ON_ERROR = None
 
 
-class CustomResponseHeader():
+class CustomResponseHeader:
     def on_request(self):
-        self.message = 'Ran hooks'
+        self.message = "Ran hooks"
 
     def on_response(self, response: http.Response):
-        response.headers['Custom'] = self.message
+        response.headers["Custom"] = self.message
 
     def on_error(self):
         global ON_ERROR
-        ON_ERROR = 'Ran on_error'
+        ON_ERROR = "Ran on_error"
 
 
 def hello_world():
-    return {'hello': 'world'}
+    return {"hello": "world"}
 
 
 def error():
@@ -26,8 +26,8 @@ def error():
 
 
 routes = [
-    Route('/hello', method='GET', handler=hello_world),
-    Route('/error', method='GET', handler=error),
+    Route("/hello", method="GET", handler=hello_world),
+    Route("/error", method="GET", handler=error),
 ]
 
 event_hooks = [CustomResponseHeader]
@@ -38,9 +38,9 @@ client = test.TestClient(app)
 
 
 def test_on_response():
-    response = client.get('/hello')
+    response = client.get("/hello")
     assert response.status_code == 200
-    assert response.headers['Custom'] == 'Ran hooks'
+    assert response.headers["Custom"] == "Ran hooks"
 
 
 def test_on_error():
@@ -48,5 +48,5 @@ def test_on_error():
 
     ON_ERROR = None
     with pytest.raises(AssertionError):
-        client.get('/error')
-    assert ON_ERROR == 'Ran on_error'
+        client.get("/error")
+    assert ON_ERROR == "Ran on_error"

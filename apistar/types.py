@@ -9,14 +9,14 @@ class TypeMetaclass(ABCMeta):
     def __new__(cls, name, bases, attrs):
         properties = []
         for key, value in list(attrs.items()):
-            if key in ['keys', 'items', 'values', 'get', 'validator']:
+            if key in ["keys", "items", "values", "get", "validator"]:
                 msg = (
                     'Cannot use reserved name "%s" on Type "%s", as it '
-                    'clashes with the class interface.'
+                    "clashes with the class interface."
                 )
                 raise ConfigurationError(msg % (key, name))
 
-            elif hasattr(value, 'validate'):
+            elif hasattr(value, "validate"):
                 attrs.pop(key)
                 properties.append((key, value))
 
@@ -24,29 +24,23 @@ class TypeMetaclass(ABCMeta):
         # Note that we loop over the bases in reverse. This is necessary in order
         # to maintain the correct order of properties.
         for base in reversed(bases):
-            if hasattr(base, 'validator'):
+            if hasattr(base, "validator"):
                 properties = [
-                    (key, base.validator.properties[key]) for key
-                    in base.validator.properties
+                    (key, base.validator.properties[key])
+                    for key in base.validator.properties
                     if key not in attrs
                 ] + properties
 
-        properties = sorted(
-            properties,
-            key=lambda item: item[1]._creation_counter
-        )
-        required = [
-            key for key, value in properties
-            if not value.has_default()
-        ]
+        properties = sorted(properties, key=lambda item: item[1]._creation_counter)
+        required = [key for key, value in properties if not value.has_default()]
 
-        attrs['validator'] = validators.Object(
+        attrs["validator"] = validators.Object(
             def_name=name,
             properties=properties,
             required=required,
-            additional_properties=None
+            additional_properties=None,
         )
-        attrs['_creation_counter'] = validators.Validator._creation_counter
+        attrs["_creation_counter"] = validators.Validator._creation_counter
         validators.Validator._creation_counter += 1
         return super(TypeMetaclass, cls).__new__(cls, name, bases, attrs)
 
@@ -58,12 +52,12 @@ class Type(Mapping, metaclass=TypeMetaclass):
 
         if args:
             assert len(args) == 1
-            definitions = kwargs.pop('definitions', definitions)
-            allow_coerce = kwargs.pop('allow_coerce', allow_coerce)
+            definitions = kwargs.pop("definitions", definitions)
+            allow_coerce = kwargs.pop("allow_coerce", allow_coerce)
             assert not kwargs
 
             if args[0] is None or isinstance(args[0], (bool, int, float, list)):
-                raise ValidationError('Must be an object.')
+                raise ValidationError("Must be an object.")
             elif isinstance(args[0], dict):
                 # Instantiated with a dict.
                 value = args[0]
@@ -78,7 +72,7 @@ class Type(Mapping, metaclass=TypeMetaclass):
             value = kwargs
 
         value = self.validator.validate(value)
-        object.__setattr__(self, '_dict', value)
+        object.__setattr__(self, "_dict", value)
 
     @classmethod
     def validate(cls, value, definitions=None, allow_coerce=False):
@@ -89,9 +83,9 @@ class Type(Mapping, metaclass=TypeMetaclass):
         return False
 
     def __repr__(self):
-        args = ['%s=%s' % (key, repr(value)) for key, value in self.items()]
-        arg_string = ', '.join(args)
-        return '<%s(%s)>' % (self.__class__.__name__, arg_string)
+        args = ["%s=%s" % (key, repr(value)) for key, value in self.items()]
+        arg_string = ", ".join(args)
+        return "<%s(%s)>" % (self.__class__.__name__, arg_string)
 
     def __setattr__(self, key, value):
         if key not in self._dict:
@@ -116,7 +110,7 @@ class Type(Mapping, metaclass=TypeMetaclass):
         if value is None:
             return None
         validator = self.validator.properties[key]
-        if hasattr(validator, 'format') and validator.format in validators.FORMATS:
+        if hasattr(validator, "format") and validator.format in validators.FORMATS:
             formatter = validators.FORMATS[validator.format]
             return formatter.to_string(value)
         return value
