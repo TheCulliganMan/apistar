@@ -70,7 +70,7 @@ class Injector(BaseInjector):
                         )
                     break
             else:
-                msg = f'No component able to handle parameter {parameter.name}: {parameter} on function {func.__name__)}.'
+                msg = f'No component able to handle parameter {parameter.name}: {parameter} on function {func.__name__}.'
                 raise ConfigurationError(msg)
 
         is_async = asyncio.iscoroutinefunction(func)
