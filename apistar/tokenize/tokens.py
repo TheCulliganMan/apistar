@@ -1,33 +1,37 @@
 from typing import List, Union
 
 
-class Token():
+class Token(object):
     def __init__(self, value, start: int, end: int):
         self.value = value
         self.start = start
         self.end = end
 
-    def lookup(self, keys: List[Union[str, int]], lookup_property: bool=False) -> 'Token':
+    def lookup(
+        self, keys: List[Union[str, int]], lookup_property: bool = False
+    ) -> "Token":
         raise NotImplementedError()
 
     def __repr__(self):
-        return '%s(%s, %d, %d)' % (
+        return "%s(%s, %d, %d)" % (
             self.__class__.__name__,
             repr(self.value),
             self.start,
-            self.end
+            self.end,
         )
 
     def __eq__(self, other):
         return (
-            self.value == other.value and
-            self.start == other.start and
-            self.end == other.end
+            self.value == other.value
+            and self.start == other.start
+            and self.end == other.end
         )
 
 
 class ScalarToken(Token):
-    def lookup(self, keys: List[Union[str, int]], lookup_property: bool=False) -> Token:
+    def lookup(
+        self, keys: List[Union[str, int]], lookup_property: bool = False
+    ) -> Token:
         if not keys:
             return self
         raise KeyError(keys[0])
@@ -42,7 +46,9 @@ class DictToken(Token):
         self.keys = {k.value: k for k in self.value.keys()}
         self.values = {k.value: v for k, v in self.value.items()}
 
-    def lookup(self, keys: List[Union[str, int]], lookup_property: bool=False) -> Token:
+    def lookup(
+        self, keys: List[Union[str, int]], lookup_property: bool = False
+    ) -> Token:
         if not keys:
             return self
         elif len(keys) == 1:
@@ -54,7 +60,9 @@ class DictToken(Token):
 
 
 class ListToken(Token):
-    def lookup(self, keys: List[Union[str, int]], lookup_property: bool=False) -> Token:
+    def lookup(
+        self, keys: List[Union[str, int]], lookup_property: bool = False
+    ) -> Token:
         if not keys:
             return self
         elif len(keys) == 1:
