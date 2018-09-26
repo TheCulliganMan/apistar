@@ -100,7 +100,7 @@ class Injector(BaseInjector):
             steps = self.resolve_functions(funcs)
             self.resolver_cache[funcs] = steps
 
-        for func, is_async, kwargs, consts, output_name, set_return in steps:
+        for func, _, kwargs, consts, output_name, set_return in steps:
             func_kwargs = {key: state[val] for key, val in kwargs.items()}
             func_kwargs.update(consts)
             state[output_name] = func(**func_kwargs)
