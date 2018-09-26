@@ -5,7 +5,7 @@ from apistar.exceptions import ConfigurationError
 from apistar.server.components import ReturnValue
 
 
-class BaseInjector():
+class BaseInjector:
     def run(self, func, state):
         raise NotImplementedError()
 
@@ -16,12 +16,17 @@ class Injector(BaseInjector):
     def __init__(self, components, initial):
         self.components = components
         self.initial = dict(initial)
-        self.reverse_initial = {
-            val: key for key, val in initial.items()
-        }
+        self.reverse_initial = {val: key for key, val in initial.items()}
         self.resolver_cache = {}
 
-    def resolve_function(self, func, output_name=None, seen_state=None, parent_parameter=None, set_return=False):
+    def resolve_function(
+        self,
+        func,
+        output_name=None,
+        seen_state=None,
+        parent_parameter=None,
+        set_return=False,
+    ):
         if seen_state is None:
             seen_state = set(self.initial)
 
@@ -35,11 +40,11 @@ class Injector(BaseInjector):
             if signature.return_annotation in self.reverse_initial:
                 output_name = self.reverse_initial[signature.return_annotation]
             else:
-                output_name = 'return_value'
+                output_name = "return_value"
 
         for parameter in signature.parameters.values():
             if parameter.annotation is ReturnValue:
-                kwargs[parameter.name] = 'return_value'
+                kwargs[parameter.name] = "return_value"
                 continue
 
             # Check if the parameter class exists in 'initial'.
@@ -66,17 +71,17 @@ class Injector(BaseInjector):
                             func=component.resolve,
                             output_name=identity,
                             seen_state=seen_state,
-                            parent_parameter=parameter
+                            parent_parameter=parameter,
                         )
                     break
             else:
-                msg = f'No component able to handle parameter {parameter.name}: {parameter} on function {func.__name__}.'
+                msg = f"No component able to handle parameter {parameter.name}: {parameter} on function {func.__name__}."
                 raise ConfigurationError(msg)
 
         is_async = asyncio.iscoroutinefunction(func)
         if is_async and not self.allow_async:
             msg = 'Function "%s" may not be async.'
-            raise ConfigurationError(msg % (func.__name__, ))
+            raise ConfigurationError(msg % (func.__name__,))
 
         step = (func, is_async, kwargs, consts, output_name, set_return)
         steps.append(step)
@@ -86,7 +91,9 @@ class Injector(BaseInjector):
         steps = []
         seen_state = set(self.initial)
         for func in funcs:
-            func_steps = self.resolve_function(func, seen_state=seen_state, set_return=True)
+            func_steps = self.resolve_function(
+                func, seen_state=seen_state, set_return=True
+            )
             steps.extend(func_steps)
         return steps
 
@@ -105,7 +112,7 @@ class Injector(BaseInjector):
             func_kwargs.update(consts)
             state[output_name] = func(**func_kwargs)
             if set_return:
-                state['return_value'] = state[output_name]
+                state["return_value"] = state[output_name]
 
         return state[output_name]
 
@@ -131,6 +138,6 @@ class ASyncInjector(Injector):
             else:
                 state[output_name] = func(**func_kwargs)
             if set_return:
-                state['return_value'] = state[output_name]
+                state["return_value"] = state[output_name]
 
         return state[output_name]

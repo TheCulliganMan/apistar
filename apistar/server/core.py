@@ -6,8 +6,10 @@ from apistar import http, types, validators
 from apistar.document import Document, Field, Link, Response, Section
 
 
-class Route():
-    def __init__(self, url, method, handler, name=None, documented=True, standalone=False):
+class Route:
+    def __init__(
+        self, url, method, handler, name=None, documented=True, standalone=False
+    ):
         self.url = url
         self.method = method
         self.handler = handler
@@ -20,8 +22,8 @@ class Route():
         fields = self.generate_fields(url, method, handler)
         response = self.generate_response(handler)
         encoding = None
-        if any([f.location == 'body' for f in fields]):
-            encoding = 'application/json'
+        if any([f.location == "body" for f in fields]):
+            encoding = "application/json"
         return Link(
             url=url,
             method=method,
@@ -29,13 +31,13 @@ class Route():
             encoding=encoding,
             fields=fields,
             response=response,
-            description=handler.__doc__
+            description=handler.__doc__,
         )
 
     def generate_fields(self, url, method, handler):
         fields = []
         path_names = [
-            item.strip('{}').lstrip('+') for item in re.findall('{[^}]*}', url)
+            item.strip("{}").lstrip("+") for item in re.findall("{[^}]*}", url)
         ]
         parameters = inspect.signature(handler).parameters
         for name, param in parameters.items():
@@ -44,18 +46,25 @@ class Route():
                     param.empty: None,
                     int: validators.Integer(),
                     float: validators.Number(),
-                    str: validators.String()
+                    str: validators.String(),
                 }[param.annotation]
-                field = Field(name=name, location='path', schema=schema)
+                field = Field(name=name, location="path", schema=schema)
                 fields.append(field)
 
-            elif param.annotation in (param.empty, int, float, bool, str, http.QueryParam):
+            elif param.annotation in (
+                param.empty,
+                int,
+                float,
+                bool,
+                str,
+                http.QueryParam,
+            ):
                 if param.default is param.empty:
                     kwargs = {}
                 elif param.default is None:
-                    kwargs = {'default': None, 'allow_null': True}
+                    kwargs = {"default": None, "allow_null": True}
                 else:
-                    kwargs = {'default': param.default}
+                    kwargs = {"default": param.default}
                 schema = {
                     param.empty: None,
                     int: validators.Integer(**kwargs),
@@ -64,16 +73,21 @@ class Route():
                     str: validators.String(**kwargs),
                     http.QueryParam: validators.String(**kwargs),
                 }[param.annotation]
-                field = Field(name=name, location='query', schema=schema)
+                field = Field(name=name, location="query", schema=schema)
                 fields.append(field)
 
             elif issubclass(param.annotation, types.Type):
-                if method in ('GET', 'DELETE'):
-                    for name, validator in param.annotation.validator.properties.items():
-                        field = Field(name=name, location='query', schema=validator)
+                if method in ("GET", "DELETE"):
+                    for (
+                        name,
+                        validator,
+                    ) in param.annotation.validator.properties.items():
+                        field = Field(name=name, location="query", schema=validator)
                         fields.append(field)
                 else:
-                    field = Field(name=name, location='body', schema=param.annotation.validator)
+                    field = Field(
+                        name=name, location="body", schema=param.annotation.validator
+                    )
                     fields.append(field)
 
         return fields
@@ -82,23 +96,26 @@ class Route():
         annotation = inspect.signature(handler).return_annotation
         annotation = self.coerce_generics(annotation)
 
-        if not (issubclass(annotation, types.Type) or isinstance(annotation, validators.Validator)):
+        if not (
+            issubclass(annotation, types.Type)
+            or isinstance(annotation, validators.Validator)
+        ):
             return None
 
-        return Response(encoding='application/json', status_code=200, schema=annotation)
+        return Response(encoding="application/json", status_code=200, schema=annotation)
 
     def coerce_generics(self, annotation):
         if (
-            isinstance(annotation, type) and
-            issubclass(annotation, typing.List) and
-            getattr(annotation, '__args__', None) and
-            issubclass(annotation.__args__[0], types.Type)
+            isinstance(annotation, type)
+            and issubclass(annotation, typing.List)
+            and getattr(annotation, "__args__", None)
+            and issubclass(annotation.__args__[0], types.Type)
         ):
             return validators.Array(items=annotation.__args__[0])
         return annotation
 
 
-class Include():
+class Include:
     def __init__(self, url, name, routes, documented=True):
         self.url = url
         self.name = name

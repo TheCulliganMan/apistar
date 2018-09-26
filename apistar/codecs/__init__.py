@@ -10,7 +10,14 @@ from apistar.codecs.text import TextCodec
 from apistar.codecs.urlencoded import URLEncodedCodec
 
 __all__ = [
-    'BaseCodec', 'ConfigCodec', 'JSONCodec', 'JSONSchemaCodec', 'OpenAPICodec',
-    'SwaggerCodec', 'TextCodec', 'DownloadCodec', 'MultiPartCodec',
-    'URLEncodedCodec',
+    "BaseCodec",
+    "ConfigCodec",
+    "JSONCodec",
+    "JSONSchemaCodec",
+    "OpenAPICodec",
+    "SwaggerCodec",
+    "TextCodec",
+    "DownloadCodec",
+    "MultiPartCodec",
+    "URLEncodedCodec",
 ]

@@ -51,31 +51,23 @@ def tokenize_yaml(content):
         return ScalarToken(value, start, end - 1)
 
     CustomLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
-        construct_mapping)
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, construct_mapping
+    )
 
     CustomLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_SEQUENCE_TAG,
-        construct_sequence)
+        yaml.resolver.BaseResolver.DEFAULT_SEQUENCE_TAG, construct_sequence
+    )
 
     CustomLoader.add_constructor(
-        yaml.resolver.BaseResolver.DEFAULT_SCALAR_TAG,
-        construct_scalar)
+        yaml.resolver.BaseResolver.DEFAULT_SCALAR_TAG, construct_scalar
+    )
 
-    CustomLoader.add_constructor(
-        'tag:yaml.org,2002:int',
-        construct_int)
+    CustomLoader.add_constructor("tag:yaml.org,2002:int", construct_int)
 
-    CustomLoader.add_constructor(
-        'tag:yaml.org,2002:float',
-        construct_float)
+    CustomLoader.add_constructor("tag:yaml.org,2002:float", construct_float)
 
-    CustomLoader.add_constructor(
-        'tag:yaml.org,2002:bool',
-        construct_bool)
+    CustomLoader.add_constructor("tag:yaml.org,2002:bool", construct_bool)
 
-    CustomLoader.add_constructor(
-        'tag:yaml.org,2002:null',
-        construct_null)
+    CustomLoader.add_constructor("tag:yaml.org,2002:null", construct_null)
 
     return yaml.load(content, CustomLoader)
