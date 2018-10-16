@@ -12,3 +12,4 @@ __pycache__
 /dist
 coverage.xml
 test.db
+Pipfile.lock
